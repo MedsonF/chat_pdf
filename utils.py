@@ -5,13 +5,14 @@ import streamlit as st
 from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
-from langchain_community.document_loaders.pdf import PyPDFLoader
+from langchain_docling import DoclingLoader
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 
-from docling.document_converter import DocumentConverter
+import faiss
+
 
 from dotenv import load_dotenv
 
@@ -27,35 +28,36 @@ PASTA_ARQUIVOS = Path(__file__).parent / 'arquivos'
 
 def importacao_documentos():
     documentos = []
-    converter = DocumentConverter()  # Inicializa o conversor do Docling
-
+    
     # Lista de extensões de arquivo suportadas
     extensoes = ['*.pdf', '*.xlsx']
 
     for extensao in extensoes:
-        for arquivo in Path("PASTA_ARQUIVOS").glob(extensao):
-            # Converte o arquivo para Markdown e JSON
-            resultado = converter.convert(arquivo)
-            markdown = resultado.document.export_to_markdown()
-
-            # Adiciona os resultados à lista de documentos
-            documentos.append({
-                "arquivo": arquivo.name,
-                "markdown": markdown
-            })
+        for arquivo in PASTA_ARQUIVOS.glob(extensao):
+            # Use DoclingLoader to load and convert the document
+            loader = DoclingLoader(file_path=str(arquivo))  # Initialize the loader with the file path as string
+            docs = loader.load()  # Load documents
+            
+            for doc in docs:
+                # Instead of using export_to_markdown(), we'll use the page_content directly
+                documentos.append(doc)
 
     return documentos
+
 
 def split_de_documentos(documentos):
     recur_splitter = RecursiveCharacterTextSplitter(
         chunk_size=2500,
         chunk_overlap=250,
-        separators=["/n\n", "\n", ".", " ", ""]
+        separators=["\n\n", "\n", ".", " ", ""]
     )
     documentos = recur_splitter.split_documents(documentos)
 
     for i, doc in enumerate(documentos):
-        doc.metadata['source'] = doc.metadata['source'].split('/')[-1]
+        if 'source' in doc.metadata:
+            doc.metadata['source'] = doc.metadata['source'].split('/')[-1]
+        else:
+            doc.metadata['source'] = f"document_{i}"
         doc.metadata['doc_id'] = i
     return documentos
 
