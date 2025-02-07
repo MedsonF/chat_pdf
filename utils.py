@@ -11,7 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 
-from docling import DoclingConverter
+from docling.document_converter import DocumentConverter
 
 from dotenv import load_dotenv
 
@@ -27,7 +27,7 @@ PASTA_ARQUIVOS = Path(__file__).parent / 'arquivos'
 
 def importacao_documentos():
     documentos = []
-    converter = DoclingConverter()  # Inicializa o conversor do Docling
+    converter = DocumentConverter()  # Inicializa o conversor do Docling
 
     # Lista de extensões de arquivo suportadas
     extensoes = ['*.pdf', '*.xlsx']
