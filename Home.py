@@ -36,7 +36,7 @@ def sidebar():
 
 
 def chat_window():
-    st.header('🤖 Bem-vindo ao Chat com PDFs da Ana Júlia', divider=True)
+    st.header('🤖 Bem-vindo ao Chat da Ana Júlia', divider=True)
 
     if not 'chain' in st.session_state:
         st.error('Faça o upload de PDFs para começar!')

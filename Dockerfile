@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Setar o diretório de trabalho
-WORKDIR /
+WORKDIR /chat
 
 # Copiar os arquivos do projeto para o contêiner
 COPY . .
